@@ -109,6 +109,58 @@ app.get('/', (req, res) => {
   });
 });
 
+// Serve registration HTML
+app.get('/register.html', (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Register ACP Offerings</title>
+      <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: #fff; }
+        button { padding: 15px 30px; font-size: 16px; background: #00d4ff; color: #000; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #00b8d4; }
+        #status { margin-top: 20px; padding: 15px; background: #222; border-radius: 5px; }
+      </style>
+    </head>
+    <body>
+      <h1>Register Agent_s_Intelligence_Kiosk Offerings</h1>
+      <p>Click to register:</p>
+      <button onclick="registerOfferings()">Register Now</button>
+      <div id="status"></div>
+
+      <script>
+        async function registerOfferings() {
+          const statusDiv = document.getElementById('status');
+          statusDiv.innerHTML = 'Registering...';
+          
+          try {
+            const response = await fetch('https://agent-services-ruddy.vercel.app/api/register', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-registration-token': 'my-secret-token'
+              }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+              statusDiv.innerHTML = '<h2>✅ SUCCESS!</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } else {
+              statusDiv.innerHTML = '<h2>❌ Error:</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            }
+          } catch (error) {
+            statusDiv.innerHTML = '<h2>❌ Failed:</h2><p>' + error.message + '</p>';
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Agent Services running on port ${PORT}`);
