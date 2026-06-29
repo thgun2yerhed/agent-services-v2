@@ -3,23 +3,18 @@
     {
       "name": "token_metadata_lookup",
       "description": "Calculates real-time, optimized data views for requested tokens.",
-      "price": {
-        "type": "fixed",
-        "amount": 0.02
-      },
+      "price_type": "fixed",
+      "price": 2,
       "slaMinutes": 15,
       "requiredFunds": false
     },
     {
       "name": "gas_estimate_check",
       "description": "Calculates real-time, optimized transaction execution costs.",
-      "price": {
-        "type": "fixed",
-        "amount": 0.03
-      },
+      "price_type": "fixed",
+      "price": 3,
       "slaMinutes": 15,
       "requiredFunds": false
     }
   ]
 }
-
