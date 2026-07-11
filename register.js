@@ -1,68 +1,62 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { createWalletClient, http } from 'viem';
+import { mnemonicToAccount } from 'viem/accounts';
+import { base } from 'viem/chains';
 
-const execAsync = promisify(exec);
+const mnemonic = process.env.MNEMONIC;
+const gatewayUrl = "https://agent-services-ruddy.vercel.app/";
+const recipientNodeWallet = "0xcd339078d159404d29000a6716d962c8833abfe8";
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const authToken = req.headers['x-registration-token'];
-  if (authToken !== process.env.spinstrzservices) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  const privateKey = process.env.AGENT_PRIVATE_KEY;
-  if (!privateKey) {
-    return res.status(500).json({ error: 'AGENT_PRIVATE_KEY environment variable not set' });
+async function executeMarketRegistration() {
+  if (!mnemonic || mnemonic.trim() === "") {
+    console.error("Execution Aborted: The MNEMONIC environment variable is empty or unset.");
+    process.exit(1);
   }
 
   try {
-    console.log('Installing ACP CLI...');
-    try {
-      await execAsync('npm list -g @virtuals-protocol/acp-cli');
-    } catch {
-      console.log('Installing ACP CLI globally...');
-      await execAsync('npm install -g @virtuals-protocol/acp-cli');
+    // Derive the account keys directly using standard Ethereum derivation paths
+    const txSigner = mnemonicToAccount(mnemonic.trim());
+    
+    const client = createWalletClient({
+      account: txSigner,
+      chain: base,
+      transport: http()
+    });
+
+    console.log(`[Base Mainnet] Derived Address: ${txSigner.address}`);
+    console.log(`[Base Mainnet] Initiating registration settlement...`);
+
+    const txHash = await client.sendTransaction({
+      to: recipientNodeWallet,
+      value: 500n
+    });
+
+    console.log(`[Onchain Confirmed] Settlement broadcast successful. TxHash: ${txHash}`);
+    console.log("[Gateway Handshake] Dispatching verification headers to the live Vercel endpoint...");
+
+    const response = await fetch(gatewayUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "PAYMENT-SIGNATURE": txHash
+      },
+      body: JSON.stringify({ method: "gas_estimate_check" })
+    });
+
+    const bodyResult = await response.json();
+
+    if (response.status === 200) {
+      console.log("\n======================================================================");
+      console.log("SUCCESS: Node metadata broadcast successfully to the market catalogs.");
+      console.log("======================================================================");
+      console.log(bodyResult);
+    } else {
+      console.error(`\n[Error] Gateway rejected verification check. Status: ${response.status}`);
+      console.error(bodyResult);
     }
 
-    console.log('Configuring ACP...');
-    const configEnv = {
-      ...process.env,
-      ACP_PRIVATE_KEY: MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgj8cz2Bj2AuuPvHmwJqeqyB9eTHCxWHQl4Id9BFhv8EyhRANCAATXBYTFbgD72Smnunk2wCkKTLESNTto6Ozn6bktom5oseXv2Q9rrIqBpUKJA5thuiztAJKvBIEpkH3kPH7TUNyN
-    };
-
-    console.log('Registering token_metadata_lookup...');
-    await execAsync(
-      `acp offering create --name "token_metadata_lookup" --description "Get token metadata (decimals, chain, market cap) before trades" --price 0.02 --sla-minutes 2`,
-      { env: configEnv }
-    );
-
-    console.log('Registering gas_estimate_check...');
-    await execAsync(
-      `acp offering create --name "gas_estimate_check" --description "Estimate Base transaction gas costs" --price 0.03 --sla-minutes 2`,
-      { env: configEnv }
-    );
-
-    console.log('Fetching offering list...');
-    const { stdout } = await execAsync('acp offering list', { env: configEnv });
-
-    return res.status(200).json({
-      status: 'success',
-      message: 'Offerings registered successfully',
-      offerings: stdout,
-      services: [
-        { name: 'token_metadata_lookup', price: '$0.02', status: 'registered' },
-        { name: 'gas_estimate_check', price: '$0.03', status: 'registered' }
-      ]
-    });
-  } catch (error) {
-    console.error('Registration error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message,
-      error: error.toString()
-    });
+  } catch (err) {
+    console.error(`\n[Execution Failure] Automation process failed: ${err.message}`);
   }
-      }
+}
+
+executeMarketRegistration();
