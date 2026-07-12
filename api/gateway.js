@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-const walletAddress = process.env.AGENT_SIGNER_ADDRESS || "0x0000000000000000000000000000000000000000";
+const walletAddress = process.env.AGENT_SIGNER_ADDRESS;
 const rpcUrl = process.env.BASE_RPC_URL || "https://mainnet.base.org";
 
 export default async (req, res) => {
@@ -95,7 +95,6 @@ export default async (req, res) => {
 
           const resolutionText = JSON.stringify({
             status: "SUCCESS",
-            serviceAddress: walletAddress,
             transactionHash: params.arguments.txHash,
             blockNumber: tx.blockNumber,
             from: tx.from,
