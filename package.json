@@ -1,20 +1,27 @@
 {
-  "name": "agent-services",
-  "version": "1.0.0",
-  "description": "Micro-services for Agent_s_Intelligence_Kiosk on ACP",
-  "main": "index.js",
+  "name": "base-mcp-resolver",
+  "version": "2.0.0",
+  "description": "Free onboarding tool providing authentic live transaction analysis on Base mainnet.",
+  "mcpName": "io.github.agentik/base-mcp-resolver",
+  "main": "api/gateway.js",
   "type": "module",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
-  },
   "dependencies": {
-    "@coinbase/coinbase-sdk": "^0.25.0",
-    "@vercel/analytics": "^2.0.1",
-    "@x402/core": "^2.17.0",
-    "@x402/extensions": "^2.17.0",
-    "cors": "^2.8.5",
-    "ethers": "^6.17.0",
-    "express": "^4.18.2"
+    "ethers": "^6.13.5"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "acp",
+    "agent-commerce-protocol",
+    "base-network",
+    "free-tier"
+  ],
+  "mcpConfig": {
+    "transport": "http",
+    "url": "https://agent-services-seven.vercel.app/api/gateway",
+    "pricing": {
+      "type": "free",
+      "cost": "0"
+    }
   }
 }

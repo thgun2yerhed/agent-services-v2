@@ -1,0 +1,13 @@
+{
+  "id": "io.vercel.agent-services",
+  "name": "Base Transaction Resolver",
+  "description": "An HTTP Server-Sent Events (SSE) protocol gateway that extracts, parses, and returns live block details for execution transactions.",
+  "transport": {
+    "type": "sse",
+    "url": "https://agent-services-seven.vercel.app/"
+  },
+  "capabilities": {
+    "tools": true
+  },
+  "version": "1.0.0"
+}

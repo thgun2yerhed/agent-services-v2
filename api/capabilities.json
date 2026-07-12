@@ -1,0 +1,10 @@
+{
+  "protocol": "ACP-2026",
+  "capabilities": ["execution", "compute", "storage"],
+  "networks": ["Solana", "Base"],
+  "latency_ms": 45,
+  "pricing": {
+    "currency": "native",
+    "rate_per_task": "0.0001"
+  }
+}

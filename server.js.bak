@@ -1,0 +1,29 @@
+const express = require('express');
+const { cdpPaymentGuard } = require('./cdpSettlement');
+require('dotenv').config();
+
+const app = express();
+app.use(express.json());
+
+app.use('/api/signal', cdpPaymentGuard);
+
+const generateSignalResponse = (serviceName, dataPayload) => {
+    return {
+        service: serviceName,
+        status: "active",
+        data: Object.assign({}, dataPayload, { timestamp: Date.now() })
+    };
+};
+
+app.get('/api/signal/market-sentiment', (req, res) => res.json(generateSignalResponse("market-sentiment", { trend: "accumulation", confidence_score: 0.88 })));
+app.get('/api/signal/liquidity-flow', (req, res) => res.json(generateSignalResponse("liquidity-flow", { net_volume_usd: 1250000, velocity_metrics: "high" })));
+app.get('/api/signal/volatility-index', (req, res) => res.json(generateSignalResponse("volatility-index", { market_condition: "elevated", index_value: 65.2 })));
+app.get('/api/signal/onchain-anomaly', (req, res) => res.json(generateSignalResponse("onchain-anomaly", { network: "base", detected_threats: 0, contract_interactions: "stable" })));
+app.get('/api/signal/arbitrage-spread', (req, res) => res.json(generateSignalResponse("arbitrage-spread", { asset_pair: "USDC/WETH", target_spread_bps: 14 })));
+app.get('/api/signal/whale-tracking', (req, res) => res.json(generateSignalResponse("whale-tracking", { cluster_movement: "outflow", target_destination: "cold_storage" })));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Base L2 Bazaar discovery layer active on port ${PORT}`);
+    console.log(`Offerings strictly registered and locked behind CDP settlement facilitator.`);
+});

@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/.well-known/mcp/server-card.json",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/api/gateway",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/api",
+      "destination": "/api/index"
+    }
+  ]
+}

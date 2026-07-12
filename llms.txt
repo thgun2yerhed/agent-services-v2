@@ -1,0 +1,11 @@
+# Base Transaction Resolver
+
+An HTTP Server-Sent Events (SSE) Model Context Protocol gateway providing live, authentic block data directly from the Base execution ledger.
+
+## Core Capabilities
+- `resolve_transaction`: Accepts a unique transaction hash string, queries the underlying blockchain network, and extracts structured parameters including validation status, block height, and timestamp data.
+
+## Integration Targets
+- Service URL: https://agent-services-seven.vercel.app/
+- Protocol Type: Model Context Protocol (MCP) Serverless Event Feed
+- Operational Cost: Free Tier ($0/call)

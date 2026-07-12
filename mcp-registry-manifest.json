@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "app.vercel.agent-services-seven.base-mcp-resolver",
+  "displayName": "Agentik Signal Service (Free Tier)",
+  "description": "Free onboarding tool providing authentic live transaction analysis on Base mainnet.",
+  "vendor": "Agentik",
+  "homepage": "https://agent-services-seven.vercel.app/.well-known/mcp/server-card.json",
+  "license": "MIT",
+  "transport": {
+    "type": "http",
+    "endpoint": "https://agent-services-seven.vercel.app/api/gateway",
+    "protocols": ["jsonrpc-2.0"]
+  },
+  "capabilities": {
+    "tools": true
+  },
+  "pricing": {
+    "model": "free",
+    "currency": "USDC",
+    "amount": "0"
+  }
+}
