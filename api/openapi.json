@@ -1,0 +1,303 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Base MCP Resolver - M2M Commerce Gateway",
+    "description": "Machine-to-machine protocol gateway for autonomous transaction analysis on Base network. Exposes JSON-RPC 2.0 interface for agentic actors.",
+    "version": "2.0.0",
+    "contact": {
+      "name": "Agent Services",
+      "email": "support@agent-services.io",
+      "url": "https://agent-services-seven.vercel.app"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://agent-services-seven.vercel.app",
+      "description": "Production gateway"
+    }
+  ],
+  "paths": {
+    "/api/gateway": {
+      "post": {
+        "summary": "Machine Context Protocol (MCP) Gateway",
+        "description": "Primary entry point for M2M commerce requests using JSON-RPC 2.0 protocol",
+        "operationId": "mcpGateway",
+        "tags": ["gateway"],
+        "parameters": [
+          {
+            "name": "payment-signature",
+            "in": "header",
+            "description": "Cryptographic signature for payment verification (required for paid methods)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{64}$"
+            }
+          },
+          {
+            "name": "x-agent-id",
+            "in": "header",
+            "description": "Unique identifier for calling agent",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-request-id",
+            "in": "header",
+            "description": "Idempotency key for request tracking",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "Initialize Request",
+                    "properties": {
+                      "jsonrpc": { "type": "string", "enum": ["2.0"] },
+                      "method": { "type": "string", "enum": ["initialize"] },
+                      "params": {
+                        "type": "object",
+                        "properties": {
+                          "protocolVersion": { "type": "string" },
+                          "clientInfo": {
+                            "type": "object",
+                            "properties": {
+                              "name": { "type": "string" },
+                              "version": { "type": "string" }
+                            }
+                          }
+                        }
+                      },
+                      "id": { "type": ["string", "number"] }
+                    },
+                    "required": ["jsonrpc", "method", "id"]
+                  },
+                  {
+                    "type": "object",
+                    "title": "Tools List Request",
+                    "properties": {
+                      "jsonrpc": { "type": "string", "enum": ["2.0"] },
+                      "method": { "type": "string", "enum": ["tools/list"] },
+                      "id": { "type": ["string", "number"] }
+                    },
+                    "required": ["jsonrpc", "method", "id"]
+                  },
+                  {
+                    "type": "object",
+                    "title": "Wallet Screen Request",
+                    "properties": {
+                      "jsonrpc": { "type": "string", "enum": ["2.0"] },
+                      "method": { "type": "string", "enum": ["wallet_screen_snapshot"] },
+                      "params": {
+                        "type": "object",
+                        "properties": {
+                          "targetAddress": {
+                            "type": "string",
+                            "pattern": "^0x[a-fA-F0-9]{40}$"
+                          },
+                          "method": { "type": "string", "enum": ["basic", "deep", "legacy"] }
+                        },
+                        "required": ["targetAddress"]
+                      },
+                      "id": { "type": ["string", "number"] }
+                    },
+                    "required": ["jsonrpc", "method", "params", "id"]
+                  },
+                  {
+                    "type": "object",
+                    "title": "Transaction Decode Request",
+                    "properties": {
+                      "jsonrpc": { "type": "string", "enum": ["2.0"] },
+                      "method": { "type": "string", "enum": ["transaction_decode"] },
+                      "params": {
+                        "type": "object",
+                        "properties": {
+                          "txHash": {
+                            "type": "string",
+                            "pattern": "^0x[a-fA-F0-9]{64}$"
+                          }
+                        },
+                        "required": ["txHash"]
+                      },
+                      "id": { "type": ["string", "number"] }
+                    },
+                    "required": ["jsonrpc", "method", "params", "id"]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful JSON-RPC response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jsonrpc": { "type": "string", "enum": ["2.0"] },
+                    "result": { "type": "object" },
+                    "id": { "type": ["string", "number"] }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required - missing or invalid payment signature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jsonrpc": { "type": "string" },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "integer", "enum": [-32001] },
+                        "message": { "type": "string" },
+                        "requiresPayment": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid JSON-RPC"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Check service operational status",
+        "operationId": "healthCheck",
+        "tags": ["system"],
+        "responses": {
+          "200": {
+            "description": "Service is operational",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "service": { "type": "string" },
+                    "version": { "type": "string" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tools": {
+      "get": {
+        "summary": "List Tools",
+        "description": "Retrieve available tools and their schemas for agent routing",
+        "operationId": "listTools",
+        "tags": ["discovery"],
+        "responses": {
+          "200": {
+            "description": "Tool list with schemas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tools": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "description": { "type": "string" },
+                          "inputSchema": { "type": "object" },
+                          "cost": { "type": "string" },
+                          "requiresPayment": { "type": "boolean" }
+                        }
+                      }
+                    },
+                    "count": { "type": "integer" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "paymentSignature": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "payment-signature",
+        "description": "Cryptographic signature for payment verification"
+      }
+    },
+    "schemas": {
+      "WalletScreenResult": {
+        "type": "object",
+        "properties": {
+          "address": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+          "screened": { "type": "boolean" },
+          "riskLevel": { "type": "string", "enum": ["low", "medium", "high"] },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "requestId": { "type": "string" },
+          "agentId": { "type": "string" }
+        }
+      },
+      "TransactionDecodeResult": {
+        "type": "object",
+        "properties": {
+          "txHash": { "type": "string", "pattern": "^0x[a-fA-F0-9]{64}$" },
+          "decoded": { "type": "boolean" },
+          "method": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "requestId": { "type": "string" },
+          "agentId": { "type": "string" }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "gateway",
+      "description": "Core MCP gateway endpoints"
+    },
+    {
+      "name": "discovery",
+      "description": "Tool and service discovery"
+    },
+    {
+      "name": "system",
+      "description": "System and health endpoints"
+    }
+  ]
+}

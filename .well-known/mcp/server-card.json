@@ -1,0 +1,34 @@
+{
+  "id": "io.vercel.agent-services",
+  "name": "Base Transaction Resolver",
+  "description": "Machine-to-machine commerce gateway for autonomous transaction analysis on Base network",
+  "version": "2.0.0",
+  "transport": {
+    "type": "http",
+    "url": "https://agent-services-seven.vercel.app/api/gateway"
+  },
+  "capabilities": {
+    "tools": true,
+    "streaming": false,
+    "authentication": "payment-signature"
+  },
+  "methods": [
+    "initialize",
+    "tools/list",
+    "wallet_screen_snapshot",
+    "transaction_decode",
+    "address_risk_analysis"
+  ],
+  "pricing": {
+    "model": "pay-per-call",
+    "currency": "USDC",
+    "network": "Base",
+    "wallet": "0xCD339078D159404D29000A6716D962C8833ABfe8"
+  },
+  "metadata": {
+    "contact": "support@agent-services.io",
+    "documentation": "https://agent-services-seven.vercel.app/docs",
+    "status": "production",
+    "uptime_sla": "99.9%"
+  }
+}
