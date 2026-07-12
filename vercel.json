@@ -1,17 +1,1 @@
-{
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/.well-known/mcp/server-card.json",
-      "destination": "/api/gateway"
-    },
-    {
-      "source": "/api/gateway",
-      "destination": "/api/gateway"
-    },
-    {
-      "source": "/api",
-      "destination": "/api/index"
-    }
-  ]
-}
+{"version": 2,"buildCommand": "npm run build","outputDirectory": "public","rewrites": [{"source": "/api/gateway","destination": "/api/gateway"},{"source": "/api/health","destination": "/api/health"},{"source": "/api/tools","destination": "/api/tools"},{"source": "/api/openapi.json","destination": "/api/openapi"},{"source": "/openapi.json","destination": "/api/openapi"},{"source": "/ai-plugin.json","destination": "/ai-plugin"},{"source": "/.well-known/mcp/server-card.json","destination": "/api/well-known"}],"headers": [{"source": "/api/(.*)","headers": [{"key": "Access-Control-Allow-Origin","value": "*"},{"key": "Access-Control-Allow-Methods","value": "GET, POST, OPTIONS"},{"key": "Access-Control-Allow-Headers","value": "Content-Type, payment-signature, x-agent-id, x-request-id"},{"key": "Content-Type","value": "application/json"}]},{"source": "/.well-known/(.*)","headers": [{"key": "Content-Type","value": "application/json"},{"key": "Access-Control-Allow-Origin","value": "*"}]},{"source": "/(ai-plugin|openapi)\\.(json|yaml)$","headers": [{"key": "Content-Type","value": "application/json"},{"key": "Cache-Control","value": "public, max-age=3600"}]}]}

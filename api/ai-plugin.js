@@ -1,0 +1,23 @@
+export default function handler(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+
+  res.json({
+    schema_version: 'v1',
+    name_for_human: 'Base Transaction Resolver',
+    name_for_model: 'base_tx_resolver',
+    description_for_human: 'Resolves and decodes active transaction hashes on the Base blockchain ledger.',
+    description_for_model: 'Use this service to fetch authentic execution data, timestamps, block heights, and routing addresses for transactions on the Base network using raw hashes.',
+    auth: {
+      type: 'none'
+    },
+    api: {
+      type: 'openapi',
+      url: 'https://agent-services-seven.vercel.app/openapi.json'
+    },
+    logo_url: 'https://agent-services-seven.vercel.app/logo.png',
+    contact_email: 'support@agent-services.io',
+    legal_info_url: 'https://agent-services-seven.vercel.app/legal'
+  });
+}
