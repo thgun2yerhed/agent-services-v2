@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
-const walletAddress = process.env.AGENT_SIGNER_ADDRESS || "0x3E90B905372267e5Dc77BE2C1337EAC068129472";
-const rpcUrl = process.env.BASE_RPC_URL || "https://mainnet.base.org";
+const walletAddress = process.env.AGENT_SIGNER_ADDRESS || process.env.WALLET_ADDRESS;
+const rpcUrl = process.env.BASE_RPC_URL || process.env.BASE_RPC || "https://mainnet.base.org";
 
 export default async (req, res) => {
   res.setHeader("Content-Type", "application/json");
@@ -119,7 +119,6 @@ export default async (req, res) => {
         }
       }
 
-      // Compliant Free-Tier x402 Fallback Template using official CAIP-2 Network Standards
       res.writeHead(402, { 
         "Content-Type": "application/json",
         "X-402-Version": "2.0.0"
