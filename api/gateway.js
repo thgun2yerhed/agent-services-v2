@@ -119,7 +119,7 @@ export default async (req, res) => {
         }
       }
 
-      // Compliant Free-Tier x402 Fallback Template for Marketplace Preflight Verification
+      // Compliant Free-Tier x402 Fallback Template using official CAIP-2 Network Standards
       res.writeHead(402, { 
         "Content-Type": "application/json",
         "X-402-Version": "2.0.0"
@@ -128,8 +128,8 @@ export default async (req, res) => {
         x402Version: "2.0.0",
         accepts: [{
           shape: "single",
-          scheme: "erc20",
-          network: "base-mainnet",
+          scheme: "exact",
+          network: "eip155:8453",
           asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bda02913",
           amount: "0",
           payTo: walletAddress,
