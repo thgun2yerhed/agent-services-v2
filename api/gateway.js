@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 
 export default async (req, res) => {
-  const walletAddress = process.env.AGENT_SIGNER_ADDRESS || process.env.WALLET_ADDRESS;
-  const rpcUrl = process.env.BASE_RPC_URL || process.env.BASE_RPC;
-  const host = req.headers.host;
+  const walletAddress = process.env.AGENT_SIGNER_ADDRESS || process.env.WALLET_ADDRESS || "0x3E90B905372267e5Dc77BE2C1337EAC068129472";
+  const rpcUrl = process.env.BASE_RPC_URL || process.env.BASE_RPC || "https://mainnet.base.org";
+  const host = req.headers.host || "agent-services-seven.vercel.app";
   const protocol = req.headers["x-forwarded-proto"] || "https";
   const resourceUrl = `${protocol}://${host}/api/gateway`;
 
@@ -42,16 +42,7 @@ export default async (req, res) => {
 
   if (req.method === "POST") {
     try {
-      let payload = req.body;
-      if (typeof payload === 'string') {
-        try {
-          payload = JSON.parse(payload);
-        } catch (e) {
-          payload = {};
-        }
-      }
-      if (!payload) payload = {};
-
+      const payload = req.body || {};
       const { method, params, id } = payload;
 
       if (method === "initialize") {
@@ -87,14 +78,6 @@ export default async (req, res) => {
       }
 
       if (method === "tools/call" && params?.name === "resolve_transaction" && params?.arguments?.txHash) {
-        if (!rpcUrl) {
-          res.writeHead(200, { "Content-Type": "application/json" });
-          return res.end(JSON.stringify({
-            jsonrpc: "2.0",
-            id: id,
-            result: { content: [{ type: "text", text: "RPC URL configuration missing." }], isError: true }
-          }));
-        }
         const provider = new ethers.JsonRpcProvider(rpcUrl);
         try {
           const tx = await provider.getTransaction(params.arguments.txHash);
@@ -145,7 +128,7 @@ export default async (req, res) => {
           network: "eip155:8453",
           asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bda02913",
           amount: "0",
-          payTo: walletAddress || "",
+          payTo: walletAddress,
           maxTimeoutSeconds: 300
         }],
         resource: resourceUrl,
