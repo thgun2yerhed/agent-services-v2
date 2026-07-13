@@ -79,11 +79,9 @@ export default async (req, res) => {
   if (req.method === "POST") {
     let body = "";
     try {
-      await new Promise((resolve, reject) => {
-        req.on("data", (chunk) => { body += chunk; });
-        req.on("end", resolve);
-        req.on("error", reject);
-      });
+      for await (const chunk of req) {
+        body += chunk;
+      }
 
       let payload = {};
       if (body && body.trim() !== "") {
