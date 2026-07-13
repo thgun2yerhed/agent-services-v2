@@ -1,0 +1,17 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.thgun2yerhed/base-mcp-resolver",
+  "title": "Base MCP Resolver",
+  "description": "Free onboarding tool providing authentic live transaction analysis on Base mainnet.",
+  "version": "2.0.0",
+  "repository": {
+    "url": "https://github.com/thgun2yerhed/agent-services-v2",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "sse",
+      "url": "https://agent-services-seven.vercel.app/api/gateway"
+    }
+  ]
+}
