@@ -10,7 +10,7 @@ export default async (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, payment-signature");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, payment-signature, x-402-version");
 
   if (req.method === "OPTIONS") {
     res.writeHead(204);
@@ -42,13 +42,16 @@ export default async (req, res) => {
 
   if (req.method === "POST") {
     try {
-      let body = '';
-      await new Promise((resolve) => {
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', resolve);
-      });
+      let payload = req.body;
+      if (typeof payload === 'string') {
+        try {
+          payload = JSON.parse(payload);
+        } catch (e) {
+          payload = {};
+        }
+      }
+      if (!payload) payload = {};
 
-      const payload = JSON.parse(body || '{}');
       const { method, params, id } = payload;
 
       if (method === "initialize") {
