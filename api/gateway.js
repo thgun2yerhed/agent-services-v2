@@ -1,9 +1,12 @@
 import { ethers } from "ethers";
 
-const walletAddress = process.env.AGENT_SIGNER_ADDRESS || process.env.WALLET_ADDRESS;
-const rpcUrl = process.env.BASE_RPC_URL || process.env.BASE_RPC || "https://mainnet.base.org";
-
 export default async (req, res) => {
+  const walletAddress = process.env.AGENT_SIGNER_ADDRESS || process.env.WALLET_ADDRESS;
+  const rpcUrl = process.env.BASE_RPC_URL || process.env.BASE_RPC;
+  const host = req.headers.host;
+  const protocol = req.headers["x-forwarded-proto"] || "https";
+  const resourceUrl = `${protocol}://${host}/api/gateway`;
+
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
@@ -18,16 +21,16 @@ export default async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     return res.end(JSON.stringify({
       mcpId: "base-mcp-resolver",
-      name: "Agentik Signal Service (Free Tier)",
+      name: "Agentik Signal Service",
       version: "2.0.0",
-      description: "Free MCP wrapper over public APIs",
+      description: "MCP wrapper over public APIs",
       x402Version: 2,
       extensions: {
         bazaar: {
           discoverable: true,
-          resource: "https://agent-services-seven.vercel.app/api/gateway",
+          resource: resourceUrl,
           type: "mcp",
-          description: "Free onboarding tool providing authentic live transaction analysis on Base mainnet."
+          description: "Onboarding tool providing authentic live transaction analysis on Base mainnet."
         }
       },
       endpoints: {
@@ -69,7 +72,7 @@ export default async (req, res) => {
           result: {
             tools: [{
               name: "resolve_transaction",
-              description: "Queries the Base blockchain via RPC to fetch authentic execution data. Free signal feed.",
+              description: "Queries the Base blockchain via RPC to fetch authentic execution data.",
               inputSchema: {
                 type: "object",
                 properties: { txHash: { type: "string" } },
@@ -81,6 +84,14 @@ export default async (req, res) => {
       }
 
       if (method === "tools/call" && params?.name === "resolve_transaction" && params?.arguments?.txHash) {
+        if (!rpcUrl) {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({
+            jsonrpc: "2.0",
+            id: id,
+            result: { content: [{ type: "text", text: "RPC URL configuration missing." }], isError: true }
+          }));
+        }
         const provider = new ethers.JsonRpcProvider(rpcUrl);
         try {
           const tx = await provider.getTransaction(params.arguments.txHash);
@@ -131,10 +142,10 @@ export default async (req, res) => {
           network: "eip155:8453",
           asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bda02913",
           amount: "0",
-          payTo: walletAddress,
+          payTo: walletAddress || "",
           maxTimeoutSeconds: 300
         }],
-        resource: "https://agent-services-seven.vercel.app/api/gateway",
+        resource: resourceUrl,
         bazaar: {
           info: {
             input: { type: "json-rpc", method: "resolve_transaction" },
